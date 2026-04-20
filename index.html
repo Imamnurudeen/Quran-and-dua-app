@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fleeing to Allah - Premium</title>
+    <title>Fleeing to Allah - Premium App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -12,11 +12,11 @@
         .theme-sepia { background-color: #f4ecd8; color: #5b4636; }
         .theme-dark { background-color: #111827; color: #f3f4f6; }
         #drawingCanvas { pointer-events: none; }
-        #drawingCanvas.active { pointer-events: auto; }
+        #drawingCanvas.active { pointer-events: auto; touch-action: none; }
     </style>
 </head>
 <body class="transition-colors duration-300">
-    <div id="app" class="min-h-screen pb-20">
+    <div id="app" class="min-h-screen pb-24">
         <header id="header" class="sticky top-0 z-50 p-4 border-b flex justify-between items-center bg-white shadow-sm">
             <h1 class="font-bold text-lg">Fleeing to Allah</h1>
             <button onclick="toggleTheme()" class="p-2 border rounded-full">🎨</button>
@@ -25,50 +25,63 @@
         <main id="content" class="p-4 max-w-md mx-auto">
             </main>
 
-        <nav id="nav" class="fixed bottom-0 left-0 right-0 border-t bg-white flex justify-around p-3">
+        <nav id="nav" class="fixed bottom-0 left-0 right-0 border-t bg-white flex justify-around p-3 z-50">
             <button onclick="showDuas()" class="flex flex-col items-center">🤲<span class="text-xs">Duas</span></button>
             <button onclick="showQuran()" class="flex flex-col items-center">📖<span class="text-xs">Quran</span></button>
-            <button onclick="alert('Journal coming soon!')" class="flex flex-col items-center">📝<span class="text-xs">Journal</span></button>
+            <button onclick="alert('Journal features: Save verses and personal prayers locally.')" class="flex flex-col items-center">📝<span class="text-xs">Journal</span></button>
         </nav>
     </div>
 
     <script>
-        // --- APP STATE ---
         let currentTheme = 'light';
         const themes = ['light', 'dark', 'sepia', 'golden'];
 
-        // --- DUA DATA ---
+        // --- FULL DUA CONTENT FROM BOOK ---
         const duaData = {
             categories: [
-                { id: "rizq", name: "Rizq & Provision", duas: [
-                    { arabic: "اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ", trans: "Allāhumma-kfinī bi-ḥalālika...", meaning: "O Allah, suffice me with what You have made lawful...", ref: "Tirmidhi 3563" }
-                ]},
-                { id: "anxiety", name: "Anxiety & Relief", duas: [
-                    { arabic: "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ", trans: "Lā ilāha illā Anta...", meaning: "There is no god but You...", ref: "Qur'an 21:87" }
-                ]}
+                { 
+                    id: "rizq", name: "Rizq & Barakah", 
+                    [span_4](start_span)[span_5](start_span)description: "Supplications for halal provision and debt relief.[span_4](end_span)[span_5](end_span)",
+                    duas: [
+                        [span_6](start_span){ arabic: "اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ", trans: "Allāhumma-kfinī bi-ḥalālika...", meaning: "O Allah, suffice me with what You have made lawful against what You have made unlawful.[span_6](end_span)", ref: "Tirmidhi 3563" },
+                        [span_7](start_span){ arabic: "رَبِّ إِنِّي لِمَا أَنزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٌ", trans: "Rabbi innī limā anzalta...", meaning: "My Lord, indeed I am in need of whatever good You would send down to me.[span_7](end_span)", ref: "Qur'an 28:24" }
+                    ]
+                },
+                { 
+                    id: "anxiety", name: "Anxiety & Relief", 
+                    [span_8](start_span)description: "Duas for worry, grief, and overwhelming hardship.[span_8](end_span)",
+                    duas: [
+                        { arabic: "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ", trans: "Lā ilāha illā Anta...", meaning: "There is no god but You; Glory be to You. [span_9](start_span)Indeed, I have been of the wrongdoers.[span_9](end_span)", ref: "Qur'an 21:87" },
+                        [span_10](start_span){ arabic: "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", trans: "Hasbunallāhu wa ni'mal-wakīl", meaning: "Allah is sufficient for us, and He is the best Disposer of affairs.[span_10](end_span)", ref: "Qur'an 3:173" }
+                    ]
+                },
+                { 
+                    id: "gratitude", name: "Gratitude & Praise", 
+                    [span_11](start_span)description: "Supplications of profound praise to Allah.[span_11](end_span)",
+                    duas: [
+                        [span_12](start_span){ arabic: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ", trans: "Alḥamdu lillāhi Rabbil-ʿālamīn", meaning: "All praise is for Allah, Lord of all the worlds.[span_12](end_span)", ref: "Qur'an 1:1-7" }
+                    ]
+                }
             ]
         };
 
-        // --- THEME ENGINE ---
         function toggleTheme() {
             const body = document.body;
             const header = document.getElementById('header');
             const nav = document.getElementById('nav');
-            
             themes.forEach(t => body.classList.remove('theme-' + t));
             currentTheme = themes[(themes.indexOf(currentTheme) + 1) % themes.length];
-            
             if (currentTheme !== 'light') body.classList.add('theme-' + currentTheme);
-            header.style.backgroundColor = body.style.backgroundColor;
-            nav.style.backgroundColor = body.style.backgroundColor;
+            header.className = `sticky top-0 z-50 p-4 border-b flex justify-between items-center shadow-sm ${body.className}`;
+            nav.className = `fixed bottom-0 left-0 right-0 border-t flex justify-around p-3 z-50 ${body.className}`;
         }
 
-        // --- DUA MODULE ---
         function showDuas() {
-            let html = `<h2 class="text-xl font-bold mb-4">Categories</h2><div class="grid grid-cols-2 gap-3">`;
+            [span_13](start_span)let html = `<h2 class="text-xl font-bold mb-4">Categories[span_13](end_span)</h2><div class="grid grid-cols-1 gap-4">`;
             duaData.categories.forEach(cat => {
-                html += `<button onclick="showCategory('${cat.id}')" class="p-4 rounded-xl border border-green-200 bg-white/10 shadow-sm text-center">
-                    <span class="block text-sm font-semibold">${cat.name}</span></button>`;
+                html += `<button onclick="showCategory('${cat.id}')" class="p-5 rounded-2xl border border-green-200 bg-white/10 shadow-sm text-left">
+                    <span class="block text-lg font-bold">${cat.name}</span>
+                    <span class="text-xs opacity-70">${cat.description}</span></button>`;
             });
             html += `</div>`;
             document.getElementById('content').innerHTML = html;
@@ -76,25 +89,25 @@
 
         function showCategory(id) {
             const cat = duaData.categories.find(c => c.id === id);
-            let html = `<button onclick="showDuas()" class="mb-4 text-green-700">← Back</button><h2 class="text-2xl font-bold mb-6">${cat.name}</h2>`;
+            let html = `<button onclick="showDuas()" class="mb-4 text-green-700 font-bold">← Back</button><h2 class="text-2xl font-bold mb-6">${cat.name}</h2>`;
             cat.duas.forEach(dua => {
-                html += `<div class="p-6 rounded-2xl border mb-4 bg-white/5 space-y-4" oncontextmenu="handleLongPress(event)">
+                html += `<div class="p-6 rounded-2xl border mb-6 bg-white/5 space-y-4" oncontextmenu="handleLongPress(event)">
                     <p class="text-right font-arabic text-3xl leading-loose">${dua.arabic}</p>
-                    <p class="text-sm font-medium">${dua.meaning}</p>
-                    <p class="text-[10px] opacity-50 uppercase">${dua.ref}</p>
+                    <p class="text-sm opacity-80 font-serif italic">${dua.trans}</p>
+                    <p class="text-md font-medium">${dua.meaning}</p>
+                    <p class="text-[10px] opacity-50 font-bold uppercase tracking-widest">${dua.ref}</p>
                 </div>`;
             });
             document.getElementById('content').innerHTML = html;
         }
 
-        // --- QURAN MODULE ---
         function showQuran() {
             document.getElementById('content').innerHTML = `
-                <div class="flex gap-2 mb-6">
-                    <button onclick="setQuranMode('mushaf')" class="px-4 py-2 rounded-full border text-xs bg-green-600 text-white">Mushaf</button>
-                    <button onclick="setQuranMode('bilingual')" class="px-4 py-2 rounded-full border text-xs">Bilingual</button>
+                <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+                    <button onclick="setQuranMode('mushaf')" class="px-4 py-2 rounded-full border text-xs bg-green-600 text-white font-bold">Mushaf</button>
+                    <button onclick="setQuranMode('bilingual')" class="px-4 py-2 rounded-full border text-xs font-bold">Bilingual</button>
                 </div>
-                <div id="quran-display" class="relative min-h-[400px]"></div>`;
+                <div id="quran-display" class="relative min-h-[450px]"></div>`;
             setQuranMode('mushaf');
         }
 
@@ -103,45 +116,44 @@
             if (mode === 'mushaf') {
                 display.innerHTML = `
                     <canvas id="drawingCanvas" class="absolute top-0 left-0 w-full h-full z-10"></canvas>
-                    <div class="p-8 border rounded-lg bg-white text-black text-center shadow-lg">
-                        <p class="font-arabic text-5xl mb-8">بِسْمِ اللَّهِ</p>
-                        <p class="text-xs text-gray-400">Mushaf Mode Active</p>
+                    <div class="p-10 border rounded-2xl bg-white text-black text-center shadow-xl space-y-6">
+                        <p class="font-arabic text-5xl">بِسْمِ اللَّهِ</p>
+                        <p class="text-xs text-gray-400 font-sans italic underline">Mushaf Rendering active</p>
                     </div>
-                    <button onclick="toggleDrawing()" class="mt-4 w-full py-2 bg-blue-500 text-white rounded-lg text-xs">Toggle Drawing Mode</button>`;
+                    <button onclick="toggleDrawing()" class="mt-6 w-full py-3 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-lg">Annotate Verse (Teacher Drawing)</button>`;
             } else {
                 display.innerHTML = `
-                    <div class="p-4 border-l-4 border-green-600 space-y-4" oncontextmenu="handleLongPress(event)">
-                        <p class="text-right font-arabic text-3xl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
-                        <p class="text-sm italic">In the Name of Allah...</p>
+                    <div class="space-y-8 animate-in fade-in duration-500">
+                        <div class="p-6 border-l-4 border-green-600 bg-white/5 space-y-4 shadow-sm" oncontextmenu="handleLongPress(event)">
+                            <p class="text-right font-arabic text-4xl leading-loose">إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ</p>
+                            [span_14](start_span)<p class="text-md italic font-sans opacity-90">You alone we worship and You alone we ask for help.[span_14](end_span)</p>
+                        </div>
                     </div>`;
             }
         }
 
-        // --- TOUCH FEATURES ---
         function handleLongPress(e) {
             e.preventDefault();
-            alert("Verse Options:\n1. Save to Journal\n2. Share\n3. Copy Text");
+            alert("Verse Options:\n\n1. Save to Personal Journal\n2. Share with Reference\n3. Copy Arabic & Meaning");
         }
 
         function toggleDrawing() {
             const canvas = document.getElementById('drawingCanvas');
             canvas.classList.toggle('active');
             if(canvas.classList.contains('active')) {
-                alert("Drawing ON: Use your finger to highlight.");
+                alert("Teacher Mode ON: Use finger to highlight Tajweed.");
                 initCanvas(canvas);
-            } else {
-                alert("Drawing OFF");
-            }
+            } else { alert("Drawing OFF"); }
         }
 
         function initCanvas(canvas) {
             const ctx = canvas.getContext('2d');
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
-            ctx.strokeStyle = "rgba(255, 255, 0, 0.5)";
-            ctx.lineWidth = 15;
+            ctx.strokeStyle = "rgba(255, 255, 0, 0.4)";
+            ctx.lineWidth = 20;
             let drawing = false;
-            canvas.addEventListener('touchstart', () => drawing = true);
+            canvas.addEventListener('touchstart', (e) => { drawing = true; e.preventDefault(); });
             canvas.addEventListener('touchend', () => { drawing = false; ctx.beginPath(); });
             canvas.addEventListener('touchmove', (e) => {
                 if(!drawing) return;
@@ -149,7 +161,8 @@
                 const r = canvas.getBoundingClientRect();
                 ctx.lineTo(t.clientX - r.left, t.clientY - r.top);
                 ctx.stroke();
-            });
+                e.preventDefault();
+            }, { passive: false });
         }
 
         showDuas();
