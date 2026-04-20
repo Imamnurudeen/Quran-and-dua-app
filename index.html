@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fleeing to Allah - Quran & Dua</title>
+    <title>Fleeing to Allah - Premium</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -11,145 +11,148 @@
         .theme-golden { background-color: #faf7ed; color: #b08d57; }
         .theme-sepia { background-color: #f4ecd8; color: #5b4636; }
         .theme-dark { background-color: #111827; color: #f3f4f6; }
+        #drawingCanvas { pointer-events: none; }
+        #drawingCanvas.active { pointer-events: auto; }
     </style>
 </head>
 <body class="transition-colors duration-300">
     <div id="app" class="min-h-screen pb-20">
-        <header class="sticky top-0 z-50 p-4 border-b flex justify-between items-center bg-white shadow-sm">
+        <header id="header" class="sticky top-0 z-50 p-4 border-b flex justify-between items-center bg-white shadow-sm">
             <h1 class="font-bold text-lg">Fleeing to Allah</h1>
-            <div class="flex gap-2">
-                <button onclick="toggleTheme()" class="p-2 border rounded-full">🎨</button>
-            </div>
+            <button onclick="toggleTheme()" class="p-2 border rounded-full">🎨</button>
         </header>
 
         <main id="content" class="p-4 max-w-md mx-auto">
             </main>
 
-        <nav class="fixed bottom-0 left-0 right-0 border-t bg-white flex justify-around p-3">
-            <button onclick="showDuas()" class="flex flex-col items-center text-green-700">
-                <span>🤲</span><span class="text-xs">Duas</span>
-            </button>
-            <button onclick="showQuran()" class="flex flex-col items-center">
-                <span>📖</span><span class="text-xs">Quran</span>
-            </button>
-            <button onclick="showJournal()" class="flex flex-col items-center">
-                <span>📝</span><span class="text-xs">Journal</span>
-            </button>
+        <nav id="nav" class="fixed bottom-0 left-0 right-0 border-t bg-white flex justify-around p-3">
+            <button onclick="showDuas()" class="flex flex-col items-center">🤲<span class="text-xs">Duas</span></button>
+            <button onclick="showQuran()" class="flex flex-col items-center">📖<span class="text-xs">Quran</span></button>
+            <button onclick="alert('Journal coming soon!')" class="flex flex-col items-center">📝<span class="text-xs">Journal</span></button>
         </nav>
     </div>
 
     <script>
-        // App State
+        // --- APP STATE ---
         let currentTheme = 'light';
         const themes = ['light', 'dark', 'sepia', 'golden'];
 
-        [span_3](start_span)// Theme Toggle Functionality[span_3](end_span)
+        // --- DUA DATA ---
+        const duaData = {
+            categories: [
+                { id: "rizq", name: "Rizq & Provision", duas: [
+                    { arabic: "اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ", trans: "Allāhumma-kfinī bi-ḥalālika...", meaning: "O Allah, suffice me with what You have made lawful...", ref: "Tirmidhi 3563" }
+                ]},
+                { id: "anxiety", name: "Anxiety & Relief", duas: [
+                    { arabic: "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ", trans: "Lā ilāha illā Anta...", meaning: "There is no god but You...", ref: "Qur'an 21:87" }
+                ]}
+            ]
+        };
+
+        // --- THEME ENGINE ---
         function toggleTheme() {
             const body = document.body;
+            const header = document.getElementById('header');
+            const nav = document.getElementById('nav');
+            
             themes.forEach(t => body.classList.remove('theme-' + t));
-            const nextIndex = (themes.indexOf(currentTheme) + 1) % themes.length;
-            currentTheme = themes[nextIndex];
+            currentTheme = themes[(themes.indexOf(currentTheme) + 1) % themes.length];
+            
             if (currentTheme !== 'light') body.classList.add('theme-' + currentTheme);
+            header.style.backgroundColor = body.style.backgroundColor;
+            nav.style.backgroundColor = body.style.backgroundColor;
         }
 
-        // Module Switchers
+        // --- DUA MODULE ---
         function showDuas() {
-            document.getElementById('content').innerHTML = `
-                <div class="animate-pulse bg-green-50 p-4 rounded-lg mb-6 border border-green-200">
-                    <p class="text-sm italic">"So flee to Allah..." - Adh-Dhariyat 51:50</p>
-                </div>
-                <div id="dua-list"></div>
-            `;
-            renderDuaModule();
+            let html = `<h2 class="text-xl font-bold mb-4">Categories</h2><div class="grid grid-cols-2 gap-3">`;
+            duaData.categories.forEach(cat => {
+                html += `<button onclick="showCategory('${cat.id}')" class="p-4 rounded-xl border border-green-200 bg-white/10 shadow-sm text-center">
+                    <span class="block text-sm font-semibold">${cat.name}</span></button>`;
+            });
+            html += `</div>`;
+            document.getElementById('content').innerHTML = html;
         }
 
+        function showCategory(id) {
+            const cat = duaData.categories.find(c => c.id === id);
+            let html = `<button onclick="showDuas()" class="mb-4 text-green-700">← Back</button><h2 class="text-2xl font-bold mb-6">${cat.name}</h2>`;
+            cat.duas.forEach(dua => {
+                html += `<div class="p-6 rounded-2xl border mb-4 bg-white/5 space-y-4" oncontextmenu="handleLongPress(event)">
+                    <p class="text-right font-arabic text-3xl leading-loose">${dua.arabic}</p>
+                    <p class="text-sm font-medium">${dua.meaning}</p>
+                    <p class="text-[10px] opacity-50 uppercase">${dua.ref}</p>
+                </div>`;
+            });
+            document.getElementById('content').innerHTML = html;
+        }
+
+        // --- QURAN MODULE ---
         function showQuran() {
             document.getElementById('content').innerHTML = `
-                <div class="flex gap-2 mb-4">
-                    <button class="px-3 py-1 bg-green-600 text-white rounded-full text-xs">Mushaf</button>
-                    <button class="px-3 py-1 border rounded-full text-xs">Bilingual</button>
+                <div class="flex gap-2 mb-6">
+                    <button onclick="setQuranMode('mushaf')" class="px-4 py-2 rounded-full border text-xs bg-green-600 text-white">Mushaf</button>
+                    <button onclick="setQuranMode('bilingual')" class="px-4 py-2 rounded-full border text-xs">Bilingual</button>
                 </div>
-                <div class="text-right font-arabic text-3xl leading-loose py-4">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
-                <p class="text-center italic text-gray-500">Premium Quran Module Loading...</p>
-            `;
+                <div id="quran-display" class="relative min-h-[400px]"></div>`;
+            setQuranMode('mushaf');
         }
-        
-        // Initial Load
+
+        function setQuranMode(mode) {
+            const display = document.getElementById('quran-display');
+            if (mode === 'mushaf') {
+                display.innerHTML = `
+                    <canvas id="drawingCanvas" class="absolute top-0 left-0 w-full h-full z-10"></canvas>
+                    <div class="p-8 border rounded-lg bg-white text-black text-center shadow-lg">
+                        <p class="font-arabic text-5xl mb-8">بِسْمِ اللَّهِ</p>
+                        <p class="text-xs text-gray-400">Mushaf Mode Active</p>
+                    </div>
+                    <button onclick="toggleDrawing()" class="mt-4 w-full py-2 bg-blue-500 text-white rounded-lg text-xs">Toggle Drawing Mode</button>`;
+            } else {
+                display.innerHTML = `
+                    <div class="p-4 border-l-4 border-green-600 space-y-4" oncontextmenu="handleLongPress(event)">
+                        <p class="text-right font-arabic text-3xl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+                        <p class="text-sm italic">In the Name of Allah...</p>
+                    </div>`;
+            }
+        }
+
+        // --- TOUCH FEATURES ---
+        function handleLongPress(e) {
+            e.preventDefault();
+            alert("Verse Options:\n1. Save to Journal\n2. Share\n3. Copy Text");
+        }
+
+        function toggleDrawing() {
+            const canvas = document.getElementById('drawingCanvas');
+            canvas.classList.toggle('active');
+            if(canvas.classList.contains('active')) {
+                alert("Drawing ON: Use your finger to highlight.");
+                initCanvas(canvas);
+            } else {
+                alert("Drawing OFF");
+            }
+        }
+
+        function initCanvas(canvas) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            ctx.strokeStyle = "rgba(255, 255, 0, 0.5)";
+            ctx.lineWidth = 15;
+            let drawing = false;
+            canvas.addEventListener('touchstart', () => drawing = true);
+            canvas.addEventListener('touchend', () => { drawing = false; ctx.beginPath(); });
+            canvas.addEventListener('touchmove', (e) => {
+                if(!drawing) return;
+                const t = e.touches[0];
+                const r = canvas.getBoundingClientRect();
+                ctx.lineTo(t.clientX - r.left, t.clientY - r.top);
+                ctx.stroke();
+            });
+        }
+
         showDuas();
-    </. // --- Data from FleeingToAllah_DuaBook.docx ---
-const duaData = {
-    etiquettes: [
-        { id: 1, title: "Purify Yourself & Face the Qibla", text: "Perform wudhu. Turn towards the Ka'bah, hoping for Allah's mercy." [span_3](start_span)},[span_3](end_span)
-        [span_4](start_span){ id: 2, title: "Feel Helpless & Humble", text: "Call upon Him silently, with utmost humility. (Qur'an 7:55)" }[span_4](end_span)
-    ],
-    categories: [
-        {
-            id: "rizq",
-            name: "Rizq & Provision",
-            [span_5](start_span)description: "Supplications for halal provision and relief from debt.",[span_5](end_span)
-            duas: [
-                {
-                    arabic: "اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ",
-                    trans: "Allāhumma-kfinī bi-ḥalālika ʿan ḥarāmik...",
-                    [span_6](start_span)meaning: "O Allah, suffice me with what You have made lawful against what You have made unlawful...",[span_6](end_span)
-                    [span_7](start_span)ref: "Jami' at-Tirmidhi 3563"[span_7](end_span)
-                }
-            ]
-        },
-        {
-            id: "anxiety",
-            name: "Relief from Distress",
-            [span_8](start_span)description: "Powerful supplications for times of worry and grief.",[span_8](end_span)
-            duas: [
-                {
-                    arabic: "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
-                    trans: "Lā ilāha illā Anta Subḥānaka innī kuntu minaẓ-ẓālimīn",
-                    [span_9](start_span)meaning: "There is no god but You; Glory be to You. Indeed, I have been of the wrongdoers.",[span_9](end_span)
-                    [span_10](start_span)ref: "Qur'an 21:87 (Dua of Yunus AS)"[span_10](end_span)
-                }
-            ]
-        }
-    ]
-};
-
-// --- Updated Render Function ---
-function renderDuaModule() {
-    let html = `
-        <div class="mb-8">
-            <h2 class="text-xl font-bold mb-4">Categories</h2>
-            <div class="grid grid-cols-2 gap-3">
-                ${duaData.categories.map(cat => `
-                    <button onclick="showCategory('${cat.id}')" class="p-4 rounded-xl border border-green-200 bg-white shadow-sm text-center">
-                        <span class="block text-sm font-semibold">${cat.name}</span>
-                    </button>
-                `).join('')}
-            </div>
-        </div>
-    `;
-    document.getElementById('content').innerHTML = html;
-}
-
-function showCategory(catId) {
-    const cat = duaData.categories.find(c => c.id === catId);
-    let html = `<button onclick="renderDuaModule()" class="mb-4 text-green-700 text-sm">← Back</button>`;
-    html += `<h2 class="text-2xl font-bold mb-2">${cat.name}</h2>`;
-    html += `<p class="text-sm opacity-70 mb-6">${cat.description}</p>`;
-    
-    cat.duas.forEach(dua => {
-        html += `
-            <div class="p-6 rounded-2xl border mb-4 bg-white/5 space-y-4 shadow-sm">
-                <p class="text-right font-arabic text-3xl leading-loose">${dua.arabic}</p>
-                <p class="text-xs italic opacity-60">${dua.trans}</p>
-                <p class="text-sm font-medium">${dua.meaning}</p>
-                <div class="flex justify-between items-center pt-2">
-                    <span class="text-[10px] uppercase tracking-wider opacity-50">${dua.ref}</span>
-                    <button class="text-green-600">🔊 Listen</button>
-                </div>
-            </div>
-        `;
-    });
-    document.getElementById('content').innerHTML = html;
-}
- >
+    </script>
 </body>
 </html>
