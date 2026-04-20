@@ -76,6 +76,80 @@
         
         // Initial Load
         showDuas();
-    </script>
+    </. // --- Data from FleeingToAllah_DuaBook.docx ---
+const duaData = {
+    etiquettes: [
+        { id: 1, title: "Purify Yourself & Face the Qibla", text: "Perform wudhu. Turn towards the Ka'bah, hoping for Allah's mercy." [span_3](start_span)},[span_3](end_span)
+        [span_4](start_span){ id: 2, title: "Feel Helpless & Humble", text: "Call upon Him silently, with utmost humility. (Qur'an 7:55)" }[span_4](end_span)
+    ],
+    categories: [
+        {
+            id: "rizq",
+            name: "Rizq & Provision",
+            [span_5](start_span)description: "Supplications for halal provision and relief from debt.",[span_5](end_span)
+            duas: [
+                {
+                    arabic: "اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ",
+                    trans: "Allāhumma-kfinī bi-ḥalālika ʿan ḥarāmik...",
+                    [span_6](start_span)meaning: "O Allah, suffice me with what You have made lawful against what You have made unlawful...",[span_6](end_span)
+                    [span_7](start_span)ref: "Jami' at-Tirmidhi 3563"[span_7](end_span)
+                }
+            ]
+        },
+        {
+            id: "anxiety",
+            name: "Relief from Distress",
+            [span_8](start_span)description: "Powerful supplications for times of worry and grief.",[span_8](end_span)
+            duas: [
+                {
+                    arabic: "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
+                    trans: "Lā ilāha illā Anta Subḥānaka innī kuntu minaẓ-ẓālimīn",
+                    [span_9](start_span)meaning: "There is no god but You; Glory be to You. Indeed, I have been of the wrongdoers.",[span_9](end_span)
+                    [span_10](start_span)ref: "Qur'an 21:87 (Dua of Yunus AS)"[span_10](end_span)
+                }
+            ]
+        }
+    ]
+};
+
+// --- Updated Render Function ---
+function renderDuaModule() {
+    let html = `
+        <div class="mb-8">
+            <h2 class="text-xl font-bold mb-4">Categories</h2>
+            <div class="grid grid-cols-2 gap-3">
+                ${duaData.categories.map(cat => `
+                    <button onclick="showCategory('${cat.id}')" class="p-4 rounded-xl border border-green-200 bg-white shadow-sm text-center">
+                        <span class="block text-sm font-semibold">${cat.name}</span>
+                    </button>
+                `).join('')}
+            </div>
+        </div>
+    `;
+    document.getElementById('content').innerHTML = html;
+}
+
+function showCategory(catId) {
+    const cat = duaData.categories.find(c => c.id === catId);
+    let html = `<button onclick="renderDuaModule()" class="mb-4 text-green-700 text-sm">← Back</button>`;
+    html += `<h2 class="text-2xl font-bold mb-2">${cat.name}</h2>`;
+    html += `<p class="text-sm opacity-70 mb-6">${cat.description}</p>`;
+    
+    cat.duas.forEach(dua => {
+        html += `
+            <div class="p-6 rounded-2xl border mb-4 bg-white/5 space-y-4 shadow-sm">
+                <p class="text-right font-arabic text-3xl leading-loose">${dua.arabic}</p>
+                <p class="text-xs italic opacity-60">${dua.trans}</p>
+                <p class="text-sm font-medium">${dua.meaning}</p>
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-[10px] uppercase tracking-wider opacity-50">${dua.ref}</span>
+                    <button class="text-green-600">🔊 Listen</button>
+                </div>
+            </div>
+        `;
+    });
+    document.getElementById('content').innerHTML = html;
+}
+ >
 </body>
 </html>
